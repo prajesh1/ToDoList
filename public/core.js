@@ -7,7 +7,7 @@ function mainController($scope, $http) {
     // when landing on the page, get all new todos and show them
     $http.get('/api/todos')
         .success(function(data) {
-            $scope.newTodos = data;
+            $scope.todos = data;
             console.log(data);
         })
         .error(function(data) {
@@ -27,8 +27,10 @@ function mainController($scope, $http) {
             });
     };
   // Send data to Node API, completed Todo
-    $scope.completeTodo = function(id) {
-        $http.post('/api/todos/complete/' + id)
+    $scope.completeTodo = function(id,newstatus) {
+	if(newstatus == 'Complete')
+        {
+		$http.post('/api/todos/complete/' + id)
             .success(function(data) {
                 $scope.todos = data;
                 console.log(data);
@@ -36,6 +38,18 @@ function mainController($scope, $http) {
             .error(function(data) {
                 console.log('Error: ' + data);
             });
+	}
+	else
+	{
+		$http.post('/api/todos/archive/' + id)
+            .success(function(data) {
+                $scope.todos = data;
+                console.log(data);
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+	}
     };
 
 

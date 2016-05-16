@@ -23,7 +23,7 @@
     app.listen(8080);
 
     var Todo = mongoose.model('Todo', {
-        text : String, completed : Boolean, archived : Boolean
+        text : String, completed : Boolean, archived : Boolean, newstatus : String
     });
 
 //=================
@@ -31,7 +31,7 @@ app.get('/api/todos', function(req, res) {
 
         // use mongoose to get all todos in the database
 	// Todo is mongoDB model defined earlier
-        Todo.find(function(err, todos) {
+        Todo.find({archived: false},function(err, todos) {
 
             // if there is an error retrieving, send the error. nothing after res.send(err) will execute
             if (err)
@@ -49,13 +49,14 @@ app.get('/api/todos', function(req, res) {
             text : req.body.text,
             done : false,
 	    completed : false,
-	   archived: false
+	    archived: false,
+            newstatus : 'Complete'
         }, function(err, todo) {
             if (err)
                 res.send(err);
 
             // get and return all the todos after you create another
-            Todo.find(function(err, todos) {
+            Todo.find({archived:false},function(err, todos) {
                 if (err)
                     res.send(err)
                 res.json(todos);
@@ -73,7 +74,7 @@ app.get('/api/todos', function(req, res) {
                 res.send(err);
 
             // get and return all the todos after you create another
-            Todo.find(function(err, todos) {
+            Todo.find({archived:false},function(err, todos) {
                 if (err)
                     res.send(err)
                 res.json(todos);
@@ -84,10 +85,25 @@ app.get('/api/todos', function(req, res) {
     app.post('/api/todos/complete/:todo_id', function(req, res) {
         Todo.update({
             _id : req.params.todo_id
-        }, {completed : true}, function(err, todo){
+        }, {completed : true,newstatus : 'Arhive'}, function(err, todo){
            
             // get and return all the todos after you create another
-            Todo.find(function(err, todos) {
+            Todo.find({archived:false},function(err, todos) {
+                if (err)
+                    res.send(err)
+                res.json(todos);
+            });
+        });
+    });
+
+// Archive a todo
+    app.post('/api/todos/archive/:todo_id', function(req, res) {
+        Todo.update({
+            _id : req.params.todo_id
+        }, {archived : true,newstatus : 'Archived'}, function(err, todo){
+
+            // get and return all the todos after you create another
+            Todo.find({archived:false},function(err, todos) {
                 if (err)
                     res.send(err)
                 res.json(todos);
